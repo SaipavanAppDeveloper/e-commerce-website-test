@@ -1,0 +1,9 @@
+127.0.0.1 - - [09/Nov/2026 08:45:41] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [09/Nov/2026 08:45:41] "GET /css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Nov/2026 08:45:41] "GET /js/app.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Nov/2026 08:45:41] "GET /js/cart.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Nov/2026 08:45:41] "GET /api/auth/me HTTP/1.1" 200 -
+127.0.0.1 - - [09/Nov/2026 08:45:41] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [09/Nov/2026 08:45:41] "GET /api/products?sort=latest HTTP/1.1" 200 -
+127.0.0.1 - - [09/Nov/2026 08:45:57] code 404, message File not found
+127.0.0.1 - - [09/Nov/2026 08:45:57] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
