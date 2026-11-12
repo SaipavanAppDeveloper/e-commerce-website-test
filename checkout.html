@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>AURA APPAREL | Dedicated Secure Checkout</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%22><text y=%2222%22 font-size=%2220%22>⚡</text></svg>">
+  <style>
+    .compulsory-badge {
+      color: var(--accent-danger);
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-left: 4px;
+      text-transform: uppercase;
+    }
+    .checkout-tabs {
+      display: flex;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+    .checkout-tab-btn {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .checkout-tab-btn.active {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+    .payment-option-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 12px;
+    }
+    .payment-option-card:hover, .payment-option-card.selected {
+      border-color: var(--accent-primary);
+      background: rgba(255, 94, 54, 0.06);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Minimal Header for Checkout -->
+  <header class="site-header" style="background: var(--bg-surface);">
+    <div class="container navbar" style="height: 68px;">
+      <a href="/" class="logo-brand">
+        <div class="brand-symbol">⚡</div>
+        <span>AURA<span style="color: var(--accent-primary);">.</span>CHECKOUT</span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 14px; font-size: 0.82rem; color: var(--text-secondary);">
+        <span>🔒 256-Bit Encrypted</span>
+        <span>•</span>
+        <span>⚡ Priority Courier</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="checkout-page-grid">
+      
+      <!-- Left Column: Checkout Forms -->
+      <div>
+        <!-- Mode Switch: Guest vs Account -->
+        <div class="checkout-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h3 style="font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+              <span>👤</span> Checkout Mode
+            </h3>
+            <span id="auth-status-pill" class="badge badge-primary">Guest Mode</span>
+          </div>
+
+          <div class="checkout-tabs">
+            <button type="button" id="tab-guest" class="checkout-tab-btn active" onclick="switchCheckoutMode('guest')">
+              ⚡ Continue as Guest (No Password)
+            </button>
+            <button type="button" id="tab-member" class="checkout-tab-btn" onclick="switchCheckoutMode('member')">
+              🔑 Member Sign In
+            </button>
+          </div>
+
+          <div id="member-login-panel" style="display: none; background: var(--bg-main); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <input type="email" id="quick-login-email" placeholder="Email Address" class="form-control" style="font-size: 0.85rem;" autocomplete="email">
+              <input type="password" id="quick-login-password" placeholder="Password" class="form-control" style="font-size: 0.85rem;" autocomplete="current-password">
+            </div>
+            <button type="button" onclick="executeQuickLogin()" class="btn btn-primary btn-sm btn-block">
+              Sign In & Auto-fill Details
+            </button>
+          </div>
+
+          <p id="guest-mode-note" style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">
+            Checking out as <strong>Guest</strong>. You do not need to create an account. Simply provide compulsory shipping information below for express doorstep delivery.
+          </p>
+        </div>
+
+        <form id="checkout-form" onsubmit="processOrder(event)" novalidate>
+          
+          <!-- Step 1: Compulsory Customer Contact -->
+          <div class="checkout-card">
+            <h2 class="checkout-section-title">
+              <span class="checkout-step-number">1</span>
+              <span>Customer Information</span>
+              <span style="font-size: 0.78rem; color: var(--accent-danger); font-weight: normal; margin-left: auto;">* Compulsory Fields</span>
+            </h2>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="cust-name">
+                  Full Name <span class="required-star">*</span>
+                  <span class="compulsory-badge">[COMPULSORY]</span>
+                </label>
+                <input type="text" id="cust-name" name="customer_name" class="form-control" placeholder="e.g. Aryan Malhotra" autocomplete="name" required>
+                <div class="invalid-feedback" id="err-name">Full name is required.</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cust-email">
+                  Email Address <span class="required-star">*</span>
+                  <span class="compulsory-badge">[COMPULSORY]</span>
+                </label>
+                <input type="email" id="cust-email" name="customer_email" class="form-control" placeholder="order-confirmation@example.com" autocomplete="email" required>
+                <div class="invalid-feedback" id="err-email">Valid email is required for tracking updates.</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cust-phone">
+                Mobile Number <span class="required-star">*</span>
+                <span class="compulsory-badge">[COMPULSORY for Courier Delivery]</span>
+              </label>
+              <div style="display: flex; gap: 8px;">
+                <span style="padding: 13px 14px; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: var(--radius-md); font-weight: 600; color: var(--text-secondary); font-size: 0.95rem;">+91</span>
+                <input type="tel" id="cust-phone" name="customer_phone" class="form-control" placeholder="10-digit Indian Mobile Number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+              </div>
+              <div class="invalid-feedback" id="err-phone">Compulsory 10-digit mobile number required for OTP and courier dispatch.</div>
+            </div>
+          </div>
+
+          <!-- Step 2: Compulsory Delivery Address -->
+          <div class="checkout-card">
+            <h2 class="checkout-section-title">
+              <span class="checkout-step-number">2</span>
+              <span>Shipping & Delivery Address</span>
+              <span style="font-size: 0.78rem; color: var(--accent-danger); font-weight: normal; margin-left: auto;">* Compulsory</span>
+            </h2>
+
+            <div class="form-group">
+              <label class="form-label" for="cust-address1">
+                Flat, House No., Building, Street Name <span class="required-star">*</span>
+                <span class="compulsory-badge">[COMPULSORY]</span>
+              </label>
+              <input type="text" id="cust-address1" name="address_line1" class="form-control" placeholder="e.g. Flat 304, Prestige Heights, 12th Cross Road" autocomplete="address-line1" required>
+              <div class="invalid-feedback" id="err-address1">Complete street address is compulsory.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cust-address2">
+                Apartment, Suite, Landmark (Optional)
+              </label>
+              <input type="text" id="cust-address2" name="address_line2" class="form-control" placeholder="e.g. Near Metro Pillar 140" autocomplete="address-line2">
+            </div>
+
+            <div class="form-row-3">
+              <div class="form-group">
+                <label class="form-label" for="cust-city">
+                  City <span class="required-star">*</span>
+                  <span class="compulsory-badge">[COMPULSORY]</span>
+                </label>
+                <input type="text" id="cust-city" name="city" class="form-control" placeholder="Bengaluru" autocomplete="address-level2" required>
+                <div class="invalid-feedback" id="err-city">City is compulsory.</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cust-state">
+                  State <span class="required-star">*</span>
+                  <span class="compulsory-badge">[COMPULSORY]</span>
+                </label>
+                <select id="cust-state" name="state" class="form-control" autocomplete="address-level1" required>
+                  <option value="">Select State</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Delhi">Delhi NCR</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Karnataka" selected>Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Other">Other State / UT</option>
+                </select>
+                <div class="invalid-feedback" id="err-state">State is compulsory.</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cust-pincode">
+                  PIN Code <span class="required-star">*</span>
+                  <span class="compulsory-badge">[COMPULSORY]</span>
+                </label>
+                <input type="text" id="cust-pincode" name="pincode" class="form-control" placeholder="560038" maxlength="6" inputmode="numeric" autocomplete="postal-code" required>
+                <div class="invalid-feedback" id="err-pincode">Valid 6-digit PIN code is compulsory.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Payment Method -->
+          <div class="checkout-card">
+            <h2 class="checkout-section-title">
+              <span class="checkout-step-number">3</span>
+              <span>Payment Selection</span>
+            </h2>
+
+            <div class="payment-option-card selected" onclick="selectPayment('upi', this)">
+              <div style="display: flex; align-items: center; gap: 14px;">
+                <input type="radio" name="payment_choice" value="UPI / Online" checked>
+                <div>
+                  <div style="font-weight: 700;">Instant UPI & Cards (Razorpay / PhonePe / GPay)</div>
+                  <div style="font-size: 0.8rem; color: var(--text-secondary);">Direct priority processing & fast dispatch</div>
+                </div>
+              </div>
+              <span class="badge badge-success">FASTEST</span>
+            </div>
+
+            <div class="payment-option-card" onclick="selectPayment('cod', this)">
+              <div style="display: flex; align-items: center; gap: 14px;">
+                <input type="radio" name="payment_choice" value="Cash on Delivery (COD)">
+                <div>
+                  <div style="font-weight: 700;">Cash on Delivery (COD)</div>
+                  <div style="font-size: 0.8rem; color: var(--text-secondary);">Pay upon physical courier delivery at your doorstep</div>
+                </div>
+              </div>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Verified Pincodes</span>
+            </div>
+
+            <button type="submit" id="btn-submit-order" class="btn btn-primary btn-block btn-lg" style="margin-top: 24px;">
+              ⚡ Place Order & Proceed
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right Column: Sticky Order Summary -->
+      <div>
+        <div class="checkout-summary-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border-subtle);">
+            <h3 style="font-size: 1.2rem;">Order Summary</h3>
+            <span id="summary-item-count" class="badge badge-primary">0 Items</span>
+          </div>
+
+          <!-- Items list -->
+          <div id="checkout-items-list" class="order-review-items">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Promo Code Box -->
+          <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+            <input type="text" id="promo-input" placeholder="Promo code (try FIRSTDROP)" class="form-control" style="text-transform: uppercase; font-size: 0.85rem;">
+            <button type="button" onclick="applyPromoCode()" class="btn btn-secondary btn-sm" style="white-space: nowrap;">Apply</button>
+          </div>
+          <div id="promo-feedback" style="font-size: 0.8rem; margin-top: -12px; margin-bottom: 14px; display: none;"></div>
+
+          <!-- Financial Breakdown -->
+          <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; color: var(--text-secondary); border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span>Subtotal</span>
+              <span id="calc-subtotal" style="font-weight: 700; color: var(--text-primary);">₹0</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between;">
+              <span>Shipping Fee (Express Courier)</span>
+              <span id="calc-shipping" style="color: var(--accent-emerald);">FREE</span>
+            </div>
+
+            <div id="calc-discount-row" style="display: none; justify-content: space-between; color: var(--accent-gold);">
+              <span>Discount Promo</span>
+              <span id="calc-discount">-₹0</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between;">
+              <span>GST & Taxes</span>
+              <span style="color: var(--text-muted);">Included (5%)</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--border-subtle); padding-top: 14px; margin-top: 6px;">
+              <span style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary);">Total Payable</span>
+              <span id="calc-total" style="font-size: 1.6rem; font-weight: 800; color: var(--accent-primary);">₹0</span>
+            </div>
+          </div>
+
+          <!-- Brand Delivery Guarantee Badge -->
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-md); padding: 16px; margin-top: 24px; font-size: 0.8rem;">
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #34D399; margin-bottom: 4px;">
+              <span>🛡️</span> AURA DELIVERY GUARANTEE
+            </div>
+            <p style="color: var(--text-secondary); margin: 0; line-height: 1.4;">
+              Your order is queued for immediate 240 GSM Supima fabric inspection and dispatched with express courier tracking (Delhivery / BlueDart).
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/cart.js"></script>
+  <script>
+    let appliedPromo = '';
+    let discountAmount = 0;
+    let isGuestCheckout = true;
+
+    function renderCheckoutReview() {
+      const cart = getCart();
+      const list = document.getElementById('checkout-items-list');
+      const countPill = document.getElementById('summary-item-count');
+      
+      if (!list) return;
+
+      if (cart.length === 0) {
+        list.innerHTML = `
+          <div style="text-align: center; padding: 30px; color: var(--text-muted);">
+            <p>Your bag is empty.</p>
+            <a href="/shop" class="btn btn-sm btn-primary" style="margin-top: 10px;">Browse Catalog Drops</a>
+          </div>
+        `;
+        document.getElementById('btn-submit-order').disabled = true;
+        return;
+      }
+
+      document.getElementById('btn-submit-order').disabled = false;
+      const totalCount = cart.reduce((s, i) => s + i.quantity, 0);
+      countPill.textContent = `${totalCount} Item${totalCount > 1 ? 's' : ''}`;
+
+      list.innerHTML = cart.map(item => `
+        <div style="display: flex; gap: 14px; align-items: center;">
+          <img src="${item.image}" alt="${item.title}" style="width: 54px; height: 64px; border-radius: var(--radius-sm); object-fit: cover;">
+          <div style="flex: 1; font-size: 0.85rem;">
+            <div style="font-weight: 700; color: var(--text-primary);">${item.title}</div>
+            <div style="color: var(--text-muted); font-size: 0.78rem;">${item.size} &bull; ${item.color} &bull; Qty: ${item.quantity}</div>
+          </div>
+          <div style="font-weight: 700; font-size: 0.9rem;">${formatINR(item.price * item.quantity)}</div>
+        </div>
+      `).join('');
+
+      recalculateTotals();
+    }
+
+    function recalculateTotals() {
+      const subtotal = getCartSubtotal();
+      const freeLimit = 999;
+      const stdShipping = 79;
+      const shipping = subtotal >= freeLimit ? 0 : (subtotal === 0 ? 0 : stdShipping);
+
+      let discount = 0;
+      if (appliedPromo === 'AURA10') {
+        discount = Math.round(subtotal * 0.10);
+      } else if (appliedPromo === 'FIRSTDROP') {
+        discount = Math.min(150, subtotal);
+      }
+      discountAmount = discount;
+
+      const total = Math.max(0, subtotal + shipping - discount);
+
+      document.getElementById('calc-subtotal').textContent = formatINR(subtotal);
+      document.getElementById('calc-shipping').textContent = shipping === 0 ? 'FREE' : formatINR(shipping);
+      
+      const discountRow = document.getElementById('calc-discount-row');
+      if (discount > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('calc-discount').textContent = `-${formatINR(discount)}`;
+      } else {
+        discountRow.style.display = 'none';
+      }
+
+      document.getElementById('calc-total').textContent = formatINR(total);
+    }
+
+    function applyPromoCode() {
+      const val = document.getElementById('promo-input').value.trim().toUpperCase();
+      const feedback = document.getElementById('promo-feedback');
+
+      if (val === 'AURA10') {
+        appliedPromo = 'AURA10';
+        feedback.style.display = 'block';
+        feedback.style.color = '#34D399';
+        feedback.textContent = '✓ 10% Streetwear Discount applied!';
+      } else if (val === 'FIRSTDROP') {
+        appliedPromo = 'FIRSTDROP';
+        feedback.style.display = 'block';
+        feedback.style.color = '#34D399';
+        feedback.textContent = '✓ ₹150 First Drop Discount applied!';
+      } else {
+        appliedPromo = '';
+        feedback.style.display = 'block';
+        feedback.style.color = '#EF4444';
+        feedback.textContent = '✕ Invalid promo code. Use FIRSTDROP or AURA10';
+      }
+      recalculateTotals();
+    }
+
+    function selectPayment(type, el) {
+      document.querySelectorAll('.payment-option-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      const radio = el.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+    }
+
+    function switchCheckoutMode(mode) {
+      const guestTab = document.getElementById('tab-guest');
+      const memberTab = document.getElementById('tab-member');
+      const loginPanel = document.getElementById('member-login-panel');
+      const pill = document.getElementById('auth-status-pill');
+      const note = document.getElementById('guest-mode-note');
+
+      if (mode === 'guest') {
+        isGuestCheckout = true;
+        guestTab.classList.add('active');
+        memberTab.classList.remove('active');
+        loginPanel.style.display = 'none';
+        pill.textContent = 'Guest Mode';
+        pill.className = 'badge badge-primary';
+        note.innerHTML = `Checking out as <strong>Guest</strong>. You do not need to create an account. Simply provide compulsory shipping information below for express doorstep delivery.`;
+      } else {
+        isGuestCheckout = false;
+        guestTab.classList.remove('active');
+        memberTab.classList.add('active');
+        loginPanel.style.display = 'block';
+        pill.textContent = 'Member Mode';
+        pill.className = 'badge badge-gold';
+        note.innerHTML = `Sign in to retrieve your saved addresses, or switch back to guest mode anytime.`;
+      }
+    }
+
+    async function executeQuickLogin() {
+      const email = document.getElementById('quick-login-email').value.trim();
+      const password = document.getElementById('quick-login-password').value.trim();
+
+      if (!email || !password) {
+        showToast('Please enter your email and password', 'error');
+        return;
+      }
+
+      const res = await API.post('/api/auth/login', { email, password });
+      if (res.success && res.token) {
+        localStorage.setItem('aura_token', res.token);
+        showToast('Logged in as ' + res.user.full_name, 'success');
+        document.getElementById('member-login-panel').style.display = 'none';
+        document.getElementById('auth-status-pill').textContent = 'Signed In: ' + res.user.full_name;
+        document.getElementById('auth-status-pill').className = 'badge badge-success';
+        
+        // Auto fill compulsory fields
+        document.getElementById('cust-name').value = res.user.full_name || '';
+        document.getElementById('cust-email').value = res.user.email || '';
+        if (res.user.phone) {
+          const cleanPhone = res.user.phone.replace(/[^0-9]/g, '').slice(-10);
+          document.getElementById('cust-phone').value = cleanPhone;
+        }
+      } else {
+        showToast(res.error || 'Login failed', 'error');
+      }
+    }
+
+    // STRICT VALIDATION OF ALL COMPULSORY FIELDS
+    async function processOrder(e) {
+      e.preventDefault();
+
+      const nameEl = document.getElementById('cust-name');
+      const emailEl = document.getElementById('cust-email');
+      const phoneEl = document.getElementById('cust-phone');
+      const addr1El = document.getElementById('cust-address1');
+      const cityEl = document.getElementById('cust-city');
+      const stateEl = document.getElementById('cust-state');
+      const pincodeEl = document.getElementById('cust-pincode');
+      const addr2 = document.getElementById('cust-address2').value.trim();
+
+      // Reset invalid states
+      [nameEl, emailEl, phoneEl, addr1El, cityEl, stateEl, pincodeEl].forEach(input => {
+        input.classList.remove('is-invalid');
+      });
+
+      let hasError = false;
+      let firstErrorEl = null;
+
+      function flagError(inputEl, condition) {
+        if (condition) {
+          inputEl.classList.add('is-invalid');
+          if (!firstErrorEl) firstErrorEl = inputEl;
+          hasError = true;
+        }
+      }
+
+      // Check Full Name
+      flagError(nameEl, !nameEl.value.trim() || nameEl.value.trim().length < 2);
+
+      // Check Email
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      flagError(emailEl, !emailPattern.test(emailEl.value.trim()));
+
+      // Check Mobile (Compulsory 10 digits)
+      const cleanPhone = phoneEl.value.replace(/[^0-9]/g, '');
+      flagError(phoneEl, cleanPhone.length < 10);
+
+      // Check Street Address
+      flagError(addr1El, !addr1El.value.trim() || addr1El.value.trim().length < 5);
+
+      // Check City
+      flagError(cityEl, !cityEl.value.trim());
+
+      // Check State
+      flagError(stateEl, !stateEl.value.trim());
+
+      // Check PIN Code (5-6 digits)
+      flagError(pincodeEl, !pincodeEl.value.trim() || pincodeEl.value.trim().length < 5);
+
+      // Check Cart
+      const cart = getCart();
+      if (!cart || cart.length === 0) {
+        showToast('Your shopping bag is empty. Please add a t-shirt first!', 'error');
+        return;
+      }
+
+      if (hasError) {
+        showToast('⚠️ Please complete ALL COMPULSORY fields highlighted in red (Full Name, Email, Mobile Number, and Address)', 'error');
+        if (firstErrorEl) {
+          firstErrorEl.focus();
+          firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
+      // Read selected payment
+      const paymentRadio = document.querySelector('input[name="payment_choice"]:checked');
+      const paymentMethod = paymentRadio ? paymentRadio.value : 'UPI / Online';
+
+      const payload = {
+        customer_name: nameEl.value.trim(),
+        customer_email: emailEl.value.trim(),
+        customer_phone: cleanPhone,
+        address_line1: addr1El.value.trim(),
+        address_line2: addr2,
+        city: cityEl.value.trim(),
+        state: stateEl.value.trim(),
+        pincode: pincodeEl.value.trim(),
+        items: cart,
+        is_guest: isGuestCheckout,
+        payment_method: paymentMethod,
+        promo_code: appliedPromo
+      };
+
+      const submitBtn = document.getElementById('btn-submit-order');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>⏳ Verifying Order & Processing...</span>`;
+
+      try {
+        const res = await API.post('/api/checkout', payload);
+        if (res.success && res.order_number) {
+          clearCart();
+          showToast('🎉 Order placed successfully!', 'success');
+          setTimeout(() => {
+            window.location.href = `/order-success?order_number=${res.order_number}`;
+          }, 600);
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `⚡ Place Order & Proceed`;
+          showToast(res.error || 'Checkout failed', 'error');
+        }
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `⚡ Place Order & Proceed`;
+        showToast('Server communication error during checkout', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCheckoutReview();
+      if (currentUser) {
+        document.getElementById('cust-name').value = currentUser.full_name || '';
+        document.getElementById('cust-email').value = currentUser.email || '';
+        if (currentUser.phone) {
+          document.getElementById('cust-phone').value = currentUser.phone.replace(/[^0-9]/g, '').slice(-10);
+        }
+        switchCheckoutMode('member');
+        document.getElementById('member-login-panel').style.display = 'none';
+        document.getElementById('auth-status-pill').textContent = 'Signed In: ' + currentUser.full_name;
+        document.getElementById('auth-status-pill').className = 'badge badge-success';
+      }
+    });
+  </script>
+</body>
+</html>

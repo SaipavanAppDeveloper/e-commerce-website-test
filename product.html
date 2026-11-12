@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>AURA APPAREL | Product Detail & Customizer</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%22><text y=%2222%22 font-size=%2220%22>⚡</text></svg>">
+  <style>
+    .pdp-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 50px;
+      padding: 40px 0 90px;
+    }
+    .pdp-gallery {
+      position: sticky;
+      top: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .main-stage {
+      position: relative;
+      border-radius: var(--radius-lg);
+      background: #141824;
+      border: 1px solid var(--border-strong);
+      aspect-ratio: 1 / 1.1;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+    .main-stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: var(--transition);
+    }
+    .thumb-row {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .thumb-btn {
+      width: 74px;
+      height: 84px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer;
+      background: #161A26;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .thumb-btn.active {
+      border-color: var(--accent-primary);
+    }
+    .thumb-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .swatch-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .swatch-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .swatch-btn:hover {
+      background: var(--bg-card-hover);
+    }
+    .swatch-btn.active {
+      border-color: var(--accent-primary);
+      background: rgba(255, 94, 54, 0.12);
+      color: var(--accent-primary);
+    }
+    .size-btn {
+      min-width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      color: var(--text-primary);
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .size-btn:hover {
+      border-color: var(--accent-primary);
+    }
+    .size-btn.active {
+      background: var(--accent-primary);
+      color: #fff;
+      border-color: var(--accent-primary);
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+    @media (max-width: 900px) {
+      .pdp-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+      .pdp-gallery {
+        position: static;
+      }
+      .main-stage {
+        aspect-ratio: 1 / 1.15;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <span>⚡ <strong>FAST PRIORITY DISPATCH:</strong> 100% Combed Supima Cotton &bull; Free Shipping Over ₹999</span>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="/" class="logo-brand">
+        <div class="brand-symbol">⚡</div>
+        <span>AURA<span style="color: var(--accent-primary);">.</span>CO</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link">Home</a></li>
+        <li><a href="/shop" class="nav-link">Catalog Drops</a></li>
+        <li><a href="/account" class="nav-link">Track Order</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <div id="nav-auth-container"></div>
+        <button onclick="openCart()" class="icon-btn" title="View Cart">
+          <span>🛍️</span>
+          <span class="cart-count" style="display: none;">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="product-loading" style="text-align: center; padding: 100px 0; color: var(--text-muted);">
+      Loading T-Shirt Drop details...
+    </div>
+
+    <div id="product-content" class="pdp-grid" style="display: none;">
+      <!-- Left: Interactive Gallery -->
+      <div class="pdp-gallery">
+        <div class="main-stage">
+          <img id="main-product-img" src="" alt="T-Shirt Drop">
+          <div style="position: absolute; top: 16px; left: 16px; display: flex; gap: 8px;">
+            <span class="badge badge-gold" id="pdp-gsm-badge">240 GSM</span>
+            <span class="badge badge-success">HIGH DENSITY DTF</span>
+          </div>
+        </div>
+
+        <div id="thumbnail-row" class="thumb-row"></div>
+      </div>
+
+      <!-- Right: Product Information & Purchase -->
+      <div class="pdp-info">
+        <div style="margin-bottom: 8px;">
+          <a href="/shop" id="pdp-category-link" class="badge badge-primary" style="text-decoration: none;">Category</a>
+        </div>
+
+        <h1 id="pdp-title" class="heading-lg" style="margin-bottom: 12px;">Loading...</h1>
+
+        <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 24px;">
+          <span id="pdp-price" style="font-size: 2rem; font-weight: 800; color: var(--text-primary);">₹0</span>
+          <span id="pdp-compare-price" style="font-size: 1.1rem; text-decoration: line-through; color: var(--text-muted);">₹0</span>
+          <span id="pdp-discount-tag" class="badge badge-primary">0% OFF</span>
+        </div>
+
+        <p id="pdp-desc" style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 24px; font-size: 0.95rem;">
+          Description...
+        </p>
+
+        <!-- Fabric & Print Specifications -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 18px; margin-bottom: 26px;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+            ⚡ Garment & Fabric Specifications
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.85rem;">
+            <div>Fabric: <strong id="spec-fabric" style="color: var(--text-primary);">100% Supima Cotton</strong></div>
+            <div>Print Technique: <strong style="color: var(--text-primary);">High-Density Pigment DTF</strong></div>
+            <div>Fit Silhouette: <strong id="spec-fit" style="color: var(--text-primary);">Oversized Boxy</strong></div>
+            <div>Wash Care: <strong style="color: var(--accent-emerald);">Machine Wash Cold, Bio-Washed</strong></div>
+          </div>
+        </div>
+
+        <!-- Color Swatch Selector -->
+        <div style="margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label">Selected Colorway: <strong id="selected-color-label" style="color: var(--accent-primary); margin-left: 6px;">Black</strong></label>
+          </div>
+          <div id="color-swatches" class="swatch-group"></div>
+        </div>
+
+        <!-- Size Selector -->
+        <div style="margin-bottom: 30px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label">Select Size: <strong id="selected-size-label" style="color: var(--accent-primary); margin-left: 6px;">L</strong></label>
+            <span style="font-size: 0.8rem; color: var(--text-muted); cursor: pointer;" onclick="alert('Size Guide:\nS: 38 chest\nM: 40 chest\nL: 42 chest\nXL: 44 chest\nXXL: 46 chest')">📏 Size Guide (Inches)</span>
+          </div>
+          <div id="size-options" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+          <div class="qty-control" style="background: var(--bg-card); height: 52px; border-radius: var(--radius-md);">
+            <button class="qty-btn" style="width: 44px; height: 50px; font-size: 1.1rem;" onclick="changePdpQty(-1)">−</button>
+            <span id="pdp-qty-val" class="qty-value" style="font-size: 1.1rem; padding: 0 16px;">1</span>
+            <button class="qty-btn" style="width: 44px; height: 50px; font-size: 1.1rem;" onclick="changePdpQty(1)">+</button>
+          </div>
+
+          <button onclick="handlePdpAddToCart()" class="btn btn-primary btn-lg" style="flex: 1; height: 52px;">
+            🛍️ Add to Bag
+          </button>
+        </div>
+
+        <a href="/checkout" onclick="handlePdpBuyNow(event)" class="btn btn-secondary btn-block btn-lg" style="margin-bottom: 28px;">
+          ⚡ Instant Guest / Member Checkout
+        </a>
+
+        <!-- Trust Badges -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding-top: 20px; border-top: 1px solid var(--border-subtle); font-size: 0.82rem; color: var(--text-secondary);">
+          <div>✓ Fast 48H Priority Dispatch</div>
+          <div>✓ 256-Bit SSL Encrypted Checkout</div>
+          <div>✓ No Password Required (Guest Mode)</div>
+          <div>✓ Fade-Proof High-Density DTF Inks</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/cart.js"></script>
+  <script>
+    let currentProduct = null;
+    let selectedColor = 'Black';
+    let selectedSize = 'L';
+    let quantity = 1;
+
+    async function loadProductDetails() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const prodId = urlParams.get('id') || '1';
+
+      try {
+        const res = await API.get(`/api/products/${prodId}`);
+        if (!res.product) {
+          document.getElementById('product-loading').innerHTML = `<h3>Product not found</h3><a href="/shop" class="btn btn-primary btn-sm" style="margin-top: 14px;">Return to Shop</a>`;
+          return;
+        }
+
+        currentProduct = res.product;
+        renderProduct(res.product);
+      } catch (e) {
+        document.getElementById('product-loading').innerHTML = `<h3>Failed to load product.</h3>`;
+      }
+    }
+
+    function renderProduct(p) {
+      document.title = `${p.title} | AURA APPAREL`;
+      document.getElementById('product-loading').style.display = 'none';
+      document.getElementById('product-content').style.display = 'grid';
+
+      document.getElementById('pdp-title').textContent = p.title;
+      document.getElementById('pdp-desc').textContent = p.description;
+      document.getElementById('pdp-price').textContent = formatINR(p.price);
+      document.getElementById('pdp-category-link').textContent = p.category_name;
+      document.getElementById('pdp-category-link').href = `/shop?category=${p.category_slug}`;
+
+      document.getElementById('spec-fabric').textContent = p.fabric_type || '100% Combed Supima Cotton';
+      document.getElementById('spec-fit').textContent = p.fit_type || 'Oversized Streetwear Fit';
+      document.getElementById('pdp-gsm-badge').textContent = `${p.fabric_gsm || 240} GSM`;
+
+      if (p.compare_price) {
+        document.getElementById('pdp-compare-price').textContent = formatINR(p.compare_price);
+        const discount = Math.round(((p.compare_price - p.price) / p.compare_price) * 100);
+        document.getElementById('pdp-discount-tag').textContent = `${discount}% OFF`;
+      } else {
+        document.getElementById('pdp-compare-price').style.display = 'none';
+        document.getElementById('pdp-discount-tag').style.display = 'none';
+      }
+
+      // Images
+      const images = p.images && p.images.length > 0 ? p.images : ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800'];
+      document.getElementById('main-product-img').src = images[0];
+
+      const thumbContainer = document.getElementById('thumbnail-row');
+      thumbContainer.innerHTML = images.map((img, i) => `
+        <button class="thumb-btn ${i === 0 ? 'active' : ''}" onclick="selectThumb('${img}', this)">
+          <img src="${img}" alt="Thumbnail">
+        </button>
+      `).join('');
+
+      // Colors
+      const colors = p.colors || ['Black', 'White'];
+      selectedColor = colors[0];
+      document.getElementById('selected-color-label').textContent = selectedColor;
+      const colorContainer = document.getElementById('color-swatches');
+      colorContainer.innerHTML = colors.map((c, i) => `
+        <button class="swatch-btn ${i === 0 ? 'active' : ''}" onclick="selectColor('${c}', this)">
+          <span style="width: 12px; height: 12px; border-radius: 50%; background: #999; display: inline-block;"></span>
+          ${c}
+        </button>
+      `).join('');
+
+      // Sizes
+      const sizes = p.sizes || ['S', 'M', 'L', 'XL', 'XXL'];
+      selectedSize = sizes.includes('L') ? 'L' : sizes[0];
+      document.getElementById('selected-size-label').textContent = selectedSize;
+      const sizeContainer = document.getElementById('size-options');
+      sizeContainer.innerHTML = sizes.map(s => `
+        <button class="size-btn ${s === selectedSize ? 'active' : ''}" onclick="selectSize('${s}', this)">
+          ${s}
+        </button>
+      `).join('');
+    }
+
+    function selectThumb(src, el) {
+      document.getElementById('main-product-img').src = src;
+      document.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function selectColor(color, el) {
+      selectedColor = color;
+      document.getElementById('selected-color-label').textContent = color;
+      document.querySelectorAll('.swatch-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function selectSize(size, el) {
+      selectedSize = size;
+      document.getElementById('selected-size-label').textContent = size;
+      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function changePdpQty(delta) {
+      quantity = Math.max(1, quantity + delta);
+      document.getElementById('pdp-qty-val').textContent = quantity;
+    }
+
+    function handlePdpAddToCart() {
+      if (!currentProduct) return;
+      addToCart(currentProduct, selectedSize, selectedColor, quantity);
+    }
+
+    function handlePdpBuyNow(e) {
+      e.preventDefault();
+      if (!currentProduct) return;
+      addToCart(currentProduct, selectedSize, selectedColor, quantity);
+      window.location.href = '/checkout';
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProductDetails);
+  </script>
+</body>
+</html>

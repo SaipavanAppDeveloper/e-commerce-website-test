@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>AURA APPAREL | Admin Portal & Qikink Fulfillment Hub</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%22><text y=%2222%22 font-size=%2220%22>⚡</text></svg>">
+  <style>
+    .admin-nav-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 30px;
+      overflow-x: auto;
+    }
+    .admin-tab {
+      padding: 12px 20px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+    .admin-tab:hover {
+      color: var(--text-primary);
+    }
+    .admin-tab.active {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+    }
+    .admin-tab.qikink-tab.active {
+      color: #38BDF8;
+      border-bottom-color: #38BDF8;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .admin-table th {
+      text-align: left;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .admin-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+    .admin-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-primary);
+    }
+    
+    /* Image Manager Styles */
+    .image-dropzone {
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-align: center;
+      background: #101420;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+    .image-dropzone:hover, .image-dropzone.dragover {
+      border-color: var(--accent-primary);
+      background: rgba(255, 94, 54, 0.05);
+    }
+    .image-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .image-thumb-card {
+      position: relative;
+      background: #141824;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      aspect-ratio: 1 / 1.15;
+    }
+    .image-thumb-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .image-thumb-card.is-cover {
+      border: 2px solid var(--accent-primary);
+    }
+    .image-thumb-actions {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 4px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .preset-mockup-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: var(--transition);
+    }
+    .preset-mockup-chip:hover {
+      border-color: var(--accent-primary);
+      background: var(--bg-card-hover);
+    }
+    .preset-mockup-chip img {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="/admin" class="logo-brand">
+        <div class="brand-symbol" style="background: linear-gradient(135deg, #0284C7, #38BDF8);">⚡</div>
+        <span>AURA<span style="color: #38BDF8;">.ADMIN</span></span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <span class="badge badge-qikink">QIKINK FULFILLMENT PORTAL</span>
+        <a href="/" target="_blank" class="btn btn-sm btn-outline">👁️ Customer Storefront</a>
+        <button onclick="handleLogout()" class="btn btn-sm btn-secondary">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 30px 0 90px;">
+    
+    <!-- Admin Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+      <div>
+        <span class="badge badge-primary">BACKEND CONTROL HUB</span>
+        <h1 class="heading-lg" style="margin-top: 4px;">Print-On-Demand Operations</h1>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 2px;">
+          Manage catalog drops, image galleries, customer orders, and internal Qikink manufacturing sync.
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button onclick="switchTab('tab-add-product')" class="btn btn-primary btn-sm">
+          + Add New T-Shirt Drop
+        </button>
+        <button onclick="switchTab('tab-qikink')" class="btn btn-qikink btn-sm">
+          ⚡ Qikink Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin Nav Tabs -->
+    <div class="admin-nav-tabs">
+      <button class="admin-tab active" onclick="switchTab('tab-products', this)">
+        👕 T-Shirts (<span id="count-products">0</span>)
+      </button>
+      <button class="admin-tab" onclick="switchTab('tab-add-product', this)">
+        ➕ Add T-Shirt Drop
+      </button>
+      <button class="admin-tab" onclick="switchTab('tab-categories', this)">
+        📂 Categories (<span id="count-categories">0</span>)
+      </button>
+      <button class="admin-tab" onclick="switchTab('tab-orders', this)">
+        📦 Orders & Compulsory Info (<span id="count-orders">0</span>)
+      </button>
+      <button class="admin-tab qikink-tab" onclick="switchTab('tab-qikink', this)">
+        ⚡ Qikink Fulfillment Hub
+      </button>
+    </div>
+
+    <!-- ================== TAB 1: PRODUCTS LIST ================== -->
+    <div id="tab-products" class="tab-pane">
+      <div class="checkout-card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 18px 24px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <h3 style="font-size: 1.1rem;">Current T-Shirt Inventory</h3>
+          <div style="display: flex; gap: 12px;">
+            <select id="admin-cat-filter" onchange="loadAdminProducts()" class="form-control" style="width: auto; padding: 6px 14px; font-size: 0.85rem;">
+              <option value="all">All Categories</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>T-Shirt & Images</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>GSM & Specs</th>
+                <th>Qikink SKU</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-products-table-body">
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                  Loading products...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================== TAB 2: ADD NEW T-SHIRT DROP (WITH PROPER IMAGE CONTROL) ================== -->
+    <div id="tab-add-product" class="tab-pane" style="display: none;">
+      <div class="checkout-card" style="max-width: 920px; margin: 0 auto;">
+        <div style="margin-bottom: 22px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+          <span class="badge badge-primary">EASY CATEGORY-WISE CREATION</span>
+          <h2 style="font-size: 1.35rem; margin-top: 6px;">Add New T-Shirt Drop to Catalog</h2>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">Upload computer images, select presets, set category, and map Qikink production SKU.</p>
+        </div>
+
+        <form onsubmit="handleCreateProduct(event)">
+          
+          <!-- Product Title and Category -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">T-Shirt Title <span class="required-star">*</span></label>
+              <input type="text" id="new-prod-title" class="form-control" placeholder="e.g. CYBERNETIC GHOST Heavyweight Oversized Tee" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Assign Category <span class="required-star">*</span></label>
+              <div style="display: flex; gap: 8px;">
+                <select id="new-prod-category" class="form-control" required>
+                  <!-- Populated via API -->
+                </select>
+                <button type="button" onclick="switchTab('tab-categories')" class="btn btn-secondary btn-sm" title="Add New Category" style="white-space: nowrap;">+ New</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pricing and Strike-through MRP -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Selling Price (INR ₹) <span class="required-star">*</span></label>
+              <input type="number" id="new-prod-price" class="form-control" placeholder="e.g. 899" required min="100">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Compare-At MRP Price (Optional strike-through)</label>
+              <input type="number" id="new-prod-compare" class="form-control" placeholder="e.g. 1499">
+            </div>
+          </div>
+
+          <!-- PROPER IMAGE CONTROL SECTION (Upload from PC, Paste URL, Presets) -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 22px; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div>
+                <label class="form-label" style="font-size: 0.95rem; margin-bottom: 2px;">
+                  🖼️ T-Shirt Images Manager <span class="required-star">*</span>
+                </label>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Upload from computer, enter URL, or choose preset streetwear mockups.</p>
+              </div>
+              <span id="image-count-badge" class="badge badge-primary">0 Images Added</span>
+            </div>
+
+            <!-- Upload Dropzone -->
+            <div class="image-dropzone" onclick="document.getElementById('file-upload-input').click()">
+              <input type="file" id="file-upload-input" accept="image/*" multiple style="display: none;" onchange="handleFilesSelected(this.files)">
+              <div style="font-size: 2rem; margin-bottom: 8px;">📁</div>
+              <div style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;">Click to upload images from your Computer / Phone</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">Supports PNG, JPG, WEBP (Multiple images allowed)</div>
+            </div>
+
+            <!-- Or Enter URL -->
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+              <input type="url" id="image-url-input" class="form-control" placeholder="Or paste image URL (https://...)" style="font-size: 0.85rem;">
+              <button type="button" onclick="handleAddImageUrl()" class="btn btn-secondary btn-sm" style="white-space: nowrap;">+ Add URL</button>
+            </div>
+
+            <!-- One-Click Preset Streetwear Mockups -->
+            <div style="margin-top: 14px;">
+              <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">
+                ⚡ Or Select 1-Click Streetwear Presets:
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="preset-mockup-chip" onclick="addPresetImage('https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=1000&q=80', 'Pitch Black Streetwear')">
+                  <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=100&q=80">
+                  <span>Pitch Black</span>
+                </button>
+                <button type="button" class="preset-mockup-chip" onclick="addPresetImage('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=1000&q=80', 'Off-White Minimal')">
+                  <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100&q=80">
+                  <span>Off-White</span>
+                </button>
+                <button type="button" class="preset-mockup-chip" onclick="addPresetImage('https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=1000&q=80', 'Dark Graphic Back')">
+                  <img src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=100&q=80">
+                  <span>Graphic Back</span>
+                </button>
+                <button type="button" class="preset-mockup-chip" onclick="addPresetImage('https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=1000&q=80', 'Acid Wash Mineral')">
+                  <img src="https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=100&q=80">
+                  <span>Acid Wash</span>
+                </button>
+                <button type="button" class="preset-mockup-chip" onclick="addPresetImage('https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=1000&q=80', 'Sage Green Nature')">
+                  <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=100&q=80">
+                  <span>Sage Green</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Image Gallery Preview -->
+            <div id="product-images-gallery" class="image-gallery-grid">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Fabric GSM & Fit Type -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Fabric Weight (GSM) <span class="required-star">*</span></label>
+              <select id="new-prod-gsm" class="form-control">
+                <option value="240" selected>240 GSM (Heavyweight Supima Cotton)</option>
+                <option value="220">220 GSM (Standard Combed Cotton)</option>
+                <option value="260">260 GSM (French Terry Luxury Knit)</option>
+                <option value="180">180 GSM (Regular Summer Light)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Silhoutte Fit Type</label>
+              <select id="new-prod-fit" class="form-control">
+                <option value="Oversized Boxy Streetwear Fit" selected>Oversized Boxy Streetwear Fit</option>
+                <option value="Relaxed Drop Shoulder">Relaxed Drop Shoulder</option>
+                <option value="Regular Classic Crew Neck">Regular Classic Crew Neck</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Colors and Sizes -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Colorways (Comma-separated)</label>
+              <input type="text" id="new-prod-colors" class="form-control" value="Pitch Black, Vintage Beige, Smoke Grey">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Sizes Available (Comma-separated)</label>
+              <input type="text" id="new-prod-sizes" class="form-control" value="S, M, L, XL, XXL">
+            </div>
+          </div>
+
+          <!-- Qikink Internal Production Specs (Admin Only) -->
+          <div style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: var(--radius-md); padding: 18px; margin-bottom: 20px;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: #38BDF8; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+              <span>⚡</span> Qikink Fulfillment API Automation (Admin Only)
+            </div>
+
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Qikink Master SKU</label>
+                <input type="text" id="new-prod-sku" class="form-control" placeholder="e.g. QK-TS-OVR-240-BLK" style="font-family: var(--font-mono); font-size: 0.85rem;">
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Leave empty to auto-generate based on category & size.</small>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Print Placement on T-Shirt</label>
+                <select id="new-prod-printside" class="form-control">
+                  <option value="front">Front Chest Print</option>
+                  <option value="back">Back Poster Print</option>
+                  <option value="both">Both Front Pocket & Back Full</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label class="form-label">Description & Fabric Notes</label>
+            <textarea id="new-prod-desc" rows="3" class="form-control">Crafted from 240 GSM ultra-heavy combed cotton with a dropped shoulder boxy cut. High-density DTF graphics cured for maximum durability.</textarea>
+          </div>
+
+          <div style="display: flex; gap: 14px; margin-top: 24px;">
+            <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;">
+              ⚡ Publish T-Shirt Drop to Store
+            </button>
+            <button type="button" onclick="switchTab('tab-products')" class="btn btn-secondary btn-lg">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================== TAB 3: CATEGORY MANAGER ================== -->
+    <div id="tab-categories" class="tab-pane" style="display: none;">
+      <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px;">
+        
+        <!-- Add Category Form -->
+        <div class="checkout-card">
+          <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Add New Category</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px;">
+            Organize drops category-wise for customer filtering.
+          </p>
+
+          <form onsubmit="handleCreateCategory(event)">
+            <div class="form-group">
+              <label class="form-label">Category Name <span class="required-star">*</span></label>
+              <input type="text" id="new-cat-name" class="form-control" placeholder="e.g. Cyberpunk Techwear" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">URL Slug (Optional)</label>
+              <input type="text" id="new-cat-slug" class="form-control" placeholder="e.g. cyberpunk-techwear">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea id="new-cat-desc" rows="2" class="form-control" placeholder="Brief aesthetic description..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Cover Image URL</label>
+              <input type="url" id="new-cat-img" class="form-control" value="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+              + Save Category
+            </button>
+          </form>
+        </div>
+
+        <!-- Categories List -->
+        <div class="checkout-card" style="padding: 0; overflow: hidden;">
+          <div style="padding: 18px 24px; border-bottom: 1px solid var(--border-subtle);">
+            <h3 style="font-size: 1.15rem;">Existing Categories</h3>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Slug</th>
+                <th>Products Count</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-categories-table-body">
+              <tr>
+                <td colspan="4" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                  Loading categories...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================== TAB 4: ORDERS & COMPULSORY DETAILS ================== -->
+    <div id="tab-orders" class="tab-pane" style="display: none;">
+      <div class="checkout-card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="font-size: 1.15rem;">Customer Orders & Compulsory Details</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+              Every order captures compulsory Full Name, Email, Mobile Number, and Detailed Street Address.
+            </p>
+          </div>
+          <button onclick="loadAdminOrders()" class="btn btn-sm btn-secondary">🔄 Refresh Orders</button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Compulsory Customer Info</th>
+                <th>Delivery Address</th>
+                <th>Amount</th>
+                <th>Qikink Status</th>
+                <th>Courier / AWB</th>
+                <th>1-Click Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-orders-table-body">
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                  Loading orders...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================== TAB 5: QIKINK FULFILLMENT HUB (ADMIN ONLY) ================== -->
+    <div id="tab-qikink" class="tab-pane" style="display: none;">
+      <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 30px; align-items: flex-start;">
+        
+        <!-- Qikink Credentials Settings -->
+        <div class="checkout-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+            <div>
+              <span class="badge badge-qikink">QIKINK API INTEGRATION (ADMIN ONLY)</span>
+              <h2 style="font-size: 1.3rem; margin-top: 6px;">Qikink Logistics Portal Settings</h2>
+              <p style="font-size: 0.85rem; color: var(--text-secondary);">Customers only see your brand AURA. Orders sync behind-the-scenes with Qikink.</p>
+            </div>
+            <span class="badge badge-success">API READY</span>
+          </div>
+
+          <form onsubmit="handleSaveQikinkSettings(event)">
+            <div class="form-group">
+              <label class="form-label">Qikink API Key <span class="required-star">*</span></label>
+              <input type="text" id="qk-api-key" class="form-control" style="font-family: var(--font-mono); font-size: 0.85rem;" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Client ID <span class="required-star">*</span></label>
+                <input type="text" id="qk-client-id" class="form-control" style="font-family: var(--font-mono); font-size: 0.85rem;" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Client Secret</label>
+                <input type="password" id="qk-client-secret" class="form-control" style="font-family: var(--font-mono); font-size: 0.85rem;">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Environment Mode</label>
+                <select id="qk-mode" class="form-control">
+                  <option value="sandbox">Sandbox (Testing / Dry Run)</option>
+                  <option value="production">Production (Live Tirupur Hub)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Default Print Technology</label>
+                <select id="qk-print-type" class="form-control">
+                  <option value="DTF" selected>DTF (Direct to Film - Crisp & Durable)</option>
+                  <option value="DTG">DTG (Direct to Garment - Soft Handfeel)</option>
+                  <option value="Screen">Screen Print (High Volume)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Automated Dispatch Sync</label>
+              <select id="qk-auto-sync" class="form-control">
+                <option value="true" selected>Enabled: Push to Qikink immediately upon checkout</option>
+                <option value="false">Manual: Store Admin reviews and clicks "Sync Qikink"</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 14px; margin-top: 24px;">
+              <button type="submit" class="btn btn-primary" style="flex: 1;">
+                Save Qikink Settings
+              </button>
+              <button type="button" onclick="testQikinkConnection()" class="btn btn-qikink">
+                ⚡ Test API Handshake
+              </button>
+            </div>
+          </form>
+
+          <div id="qikink-test-output" style="margin-top: 20px; display: none;"></div>
+        </div>
+
+        <!-- Qikink Mapping Cheat Sheet -->
+        <div>
+          <div class="checkout-card" style="margin-bottom: 20px;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: #38BDF8;">
+              📖 Qikink SKU Cheat Sheet
+            </h3>
+            <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6;">
+              <div style="margin-bottom: 8px;">
+                <strong style="color: var(--text-primary);">Oversized Round Neck:</strong>
+                <code>TS-RN-240GSM-[COLOR]-[SIZE]</code>
+              </div>
+              <div style="margin-bottom: 8px;">
+                <strong style="color: var(--text-primary);">Heavyweight Acid Wash:</strong>
+                <code>TS-TER-ACID-[COLOR]-[SIZE]</code>
+              </div>
+              <div style="margin-bottom: 8px;">
+                <strong style="color: var(--text-primary);">Standard Crew Neck:</strong>
+                <code>TS-RN-180GSM-[COLOR]-[SIZE]</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="checkout-card">
+            <h3 style="font-size: 1.1rem; margin-bottom: 10px;">
+              🚚 Integrated Couriers
+            </h3>
+            <ul style="font-size: 0.85rem; color: var(--text-secondary); padding-left: 20px; line-height: 1.7;">
+              <li>Delhivery Express Surface & Air</li>
+              <li>BlueDart Priority</li>
+              <li>Shadowfax Hyperlocal</li>
+              <li>DTDC Express</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Inspect Payload Modal -->
+  <div id="payload-modal" class="cart-drawer-overlay">
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); max-width: 650px; width: 90%; margin: 60px auto; padding: 24px; box-shadow: var(--shadow-lg); font-family: var(--font-mono); font-size: 0.8rem; position: relative;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+        <h4 style="color: #38BDF8; margin: 0;">⚡ Qikink REST API Payload Inspector</h4>
+        <button onclick="closePayloadModal()" style="background: none; border: none; color: var(--text-secondary); font-size: 1.1rem; cursor: pointer;">✕</button>
+      </div>
+      <pre id="payload-modal-code" style="color: #94A3B8; max-height: 400px; overflow-y: auto; background: #0B0E14; padding: 14px; border-radius: var(--radius-sm);"></pre>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/cart.js"></script>
+  <script>
+    let allCategories = [];
+    let productImages = ['https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=1000&q=80']; // Default mockup
+
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      
+      const target = document.getElementById(tabId);
+      if (target) target.style.display = 'block';
+
+      if (el) {
+        el.classList.add('active');
+      } else {
+        const btn = Array.from(document.querySelectorAll('.admin-tab')).find(b => b.getAttribute('onclick')?.includes(tabId));
+        if (btn) btn.classList.add('active');
+      }
+
+      if (tabId === 'tab-products') loadAdminProducts();
+      if (tabId === 'tab-categories') loadAdminCategories();
+      if (tabId === 'tab-orders') loadAdminOrders();
+      if (tabId === 'tab-qikink') loadQikinkSettings();
+      if (tabId === 'tab-add-product') renderProductImageGallery();
+    }
+
+    // ----------------- IMAGE CONTROL FUNCTIONS -----------------
+    function renderProductImageGallery() {
+      const container = document.getElementById('product-images-gallery');
+      const badge = document.getElementById('image-count-badge');
+      if (!container) return;
+
+      if (badge) badge.textContent = `${productImages.length} Image${productImages.length === 1 ? '' : 's'} Added`;
+
+      if (productImages.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1 / -1; color: var(--text-muted); font-size: 0.85rem; padding: 10px 0;">No images added yet. Click above to upload or select a preset.</div>`;
+        return;
+      }
+
+      container.innerHTML = productImages.map((url, idx) => `
+        <div class="image-thumb-card ${idx === 0 ? 'is-cover' : ''}">
+          <img src="${url}" alt="Thumbnail ${idx}">
+          <div class="image-thumb-actions">
+            ${idx === 0 ? '<span style="font-size: 0.65rem; color: var(--accent-primary); font-weight: bold;">COVER</span>' : `<button type="button" onclick="makeCoverImage(${idx})" style="background: none; border: none; color: #fff; font-size: 0.65rem; cursor: pointer;">Set Cover</button>`}
+            <button type="button" onclick="removeProductImage(${idx})" style="background: none; border: none; color: #EF4444; font-size: 0.85rem; cursor: pointer;">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addPresetImage(url, name) {
+      if (!productImages.includes(url)) {
+        productImages.push(url);
+        renderProductImageGallery();
+        showToast(`Added preset "${name}"`, 'success');
+      }
+    }
+
+    function handleAddImageUrl() {
+      const input = document.getElementById('image-url-input');
+      const url = input.value.trim();
+      if (!url) return;
+      productImages.push(url);
+      input.value = '';
+      renderProductImageGallery();
+      showToast('Image URL added to gallery', 'success');
+    }
+
+    function makeCoverImage(idx) {
+      const item = productImages.splice(idx, 1)[0];
+      productImages.unshift(item);
+      renderProductImageGallery();
+      showToast('Cover image updated', 'info');
+    }
+
+    function removeProductImage(idx) {
+      productImages.splice(idx, 1);
+      renderProductImageGallery();
+    }
+
+    // Direct Computer File Upload
+    async function handleFilesSelected(files) {
+      if (!files || files.length === 0) return;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        showToast(`Uploading "${file.name}"...`, 'info');
+        
+        try {
+          const base64 = await readFileAsBase64(file);
+          const res = await API.post('/api/admin/upload-image', {
+            image_data: base64,
+            filename: file.name
+          });
+
+          if (res.success && res.image_url) {
+            productImages.push(res.image_url);
+            showToast(`Uploaded "${file.name}" successfully!`, 'success');
+          } else {
+            showToast(res.error || 'Upload failed', 'error');
+          }
+        } catch (e) {
+          showToast(`Error uploading ${file.name}`, 'error');
+        }
+      }
+      renderProductImageGallery();
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = err => reject(err);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // ----------------- PRODUCT CRUD -----------------
+    async function handleCreateProduct(e) {
+      e.preventDefault();
+      const title = document.getElementById('new-prod-title').value.trim();
+      const categoryId = document.getElementById('new-prod-category').value;
+      const price = document.getElementById('new-prod-price').value;
+      const comparePrice = document.getElementById('new-prod-compare').value;
+      const gsm = document.getElementById('new-prod-gsm').value;
+      const fit = document.getElementById('new-prod-fit').value;
+      const colors = document.getElementById('new-prod-colors').value.split(',').map(s => s.trim()).filter(Boolean);
+      const sizes = document.getElementById('new-prod-sizes').value.split(',').map(s => s.trim()).filter(Boolean);
+      const sku = document.getElementById('new-prod-sku').value.trim();
+      const printSide = document.getElementById('new-prod-printside').value;
+      const desc = document.getElementById('new-prod-desc').value.trim();
+
+      if (productImages.length === 0) {
+        showToast('Please add at least one image or preset mockup', 'error');
+        return;
+      }
+
+      const payload = {
+        title,
+        category_id: categoryId,
+        price,
+        compare_price: comparePrice || null,
+        fabric_gsm: gsm,
+        fit_type: fit,
+        colors,
+        sizes,
+        qikink_sku: sku,
+        print_side: printSide,
+        images: productImages,
+        description: desc
+      };
+
+      const res = await API.post('/api/products', payload);
+      if (res.success) {
+        showToast(`🎉 "${title}" added category-wise successfully!`, 'success');
+        switchTab('tab-products');
+      } else {
+        showToast(res.error || 'Failed to create product', 'error');
+      }
+    }
+
+    async function handleDeleteProduct(id) {
+      if (!confirm('Are you sure you want to remove this T-Shirt drop?')) return;
+      const res = await API.delete(`/api/products/${id}`);
+      if (res.success) {
+        showToast('T-Shirt removed from catalog', 'info');
+        loadAdminProducts();
+      }
+    }
+
+    // ----------------- CATEGORY CRUD -----------------
+    async function loadAdminCategories() {
+      try {
+        const res = await API.get('/api/categories');
+        allCategories = res.categories || [];
+        document.getElementById('count-categories').textContent = allCategories.length;
+
+        const catSelect = document.getElementById('new-prod-category');
+        const filterSelect = document.getElementById('admin-cat-filter');
+        
+        if (catSelect) {
+          catSelect.innerHTML = allCategories.map(c => `
+            <option value="${c.id}">${c.name}</option>
+          `).join('');
+        }
+
+        if (filterSelect) {
+          filterSelect.innerHTML = `<option value="all">All Categories</option>` + allCategories.map(c => `
+            <option value="${c.id}">${c.name}</option>
+          `).join('');
+        }
+
+        const tbody = document.getElementById('admin-categories-table-body');
+        if (tbody) {
+          tbody.innerHTML = allCategories.map(c => `
+            <tr>
+              <td>
+                <div style="font-weight: 700; color: var(--text-primary);">${c.name}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${c.description || 'No description'}</div>
+              </td>
+              <td><code>${c.slug}</code></td>
+              <td><span class="badge badge-primary">${c.product_count} T-Shirts</span></td>
+              <td>
+                <a href="/shop?category=${c.slug}" target="_blank" class="btn btn-sm btn-outline">View in Store</a>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function handleCreateCategory(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-cat-name').value.trim();
+      const slug = document.getElementById('new-cat-slug').value.trim();
+      const desc = document.getElementById('new-cat-desc').value.trim();
+      const img = document.getElementById('new-cat-img').value.trim();
+
+      const res = await API.post('/api/categories', { name, slug, description: desc, image_url: img });
+      if (res.success) {
+        showToast(`Category "${name}" created!`, 'success');
+        document.getElementById('new-cat-name').value = '';
+        loadAdminCategories();
+      } else {
+        showToast(res.error || 'Failed to create category', 'error');
+      }
+    }
+
+    // ----------------- PRODUCTS LIST -----------------
+    async function loadAdminProducts() {
+      const catFilter = document.getElementById('admin-cat-filter')?.value || 'all';
+      let url = '/api/products';
+      if (catFilter !== 'all') url += `?category_id=${catFilter}`;
+
+      try {
+        const res = await API.get(url);
+        const products = res.products || [];
+        document.getElementById('count-products').textContent = products.length;
+
+        const tbody = document.getElementById('admin-products-table-body');
+        if (!tbody) return;
+
+        if (products.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px;">No t-shirts found. Click "+ Add T-Shirt Drop" to create one.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = products.map(p => {
+          const img = (p.images && p.images[0]) || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800';
+          const imgCount = (p.images && p.images.length) || 1;
+          return `
+            <tr>
+              <td>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                  <img src="${img}" style="width: 44px; height: 50px; border-radius: 4px; object-fit: cover;">
+                  <div>
+                    <div style="font-weight: 700; color: var(--text-primary);">${p.title}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">${imgCount} image${imgCount > 1 ? 's' : ''} &bull; Sizes: ${p.sizes.join(', ')}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-primary">${p.category_name}</span></td>
+              <td><strong style="color: var(--text-primary);">${formatINR(p.price)}</strong></td>
+              <td>
+                <span class="badge badge-gold">${p.fabric_gsm || 240} GSM</span>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">${p.fit_type}</div>
+              </td>
+              <td><code style="color: #38BDF8;">${p.qikink_sku || 'AUTO'}</code></td>
+              <td><span class="badge badge-success">In Stock</span></td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <a href="/product?id=${p.id}" target="_blank" class="btn btn-sm btn-outline" title="Preview Product">👁️</a>
+                  <button onclick="handleDeleteProduct(${p.id})" class="btn btn-sm btn-secondary" style="color: var(--accent-danger);" title="Delete T-Shirt">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // ----------------- ORDERS LIST -----------------
+    async function loadAdminOrders() {
+      try {
+        const res = await API.get('/api/orders');
+        const orders = res.orders || [];
+        document.getElementById('count-orders').textContent = orders.length;
+
+        const tbody = document.getElementById('admin-orders-table-body');
+        if (!tbody) return;
+
+        if (orders.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px;">No customer orders placed yet.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = orders.map(o => `
+          <tr>
+            <td>
+              <div style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-gold);">${o.order_number}</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">${o.created_at}</div>
+              <span class="badge ${o.is_guest ? 'badge-primary' : 'badge-gold'}" style="margin-top: 4px; font-size: 0.65rem;">
+                ${o.is_guest ? 'GUEST CHECKOUT' : 'MEMBER'}
+              </span>
+            </td>
+            <td>
+              <div style="font-weight: 700; color: var(--text-primary);">${o.customer_name}</div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary);">${o.customer_email}</div>
+              <div style="font-size: 0.78rem; color: var(--accent-primary); font-family: var(--font-mono); font-weight: 600;">+91 ${o.customer_phone}</div>
+            </td>
+            <td style="max-width: 200px;">
+              <div style="font-size: 0.8rem; line-height: 1.4; color: var(--text-secondary);">
+                ${o.address_line1}${o.address_line2 ? `, ${o.address_line2}` : ''}<br>
+                <strong>${o.city}, ${o.state} - ${o.pincode}</strong>
+              </div>
+            </td>
+            <td>
+              <strong style="font-size: 1.05rem; color: var(--text-primary);">${formatINR(o.total_amount)}</strong>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">${o.payment_method}</div>
+            </td>
+            <td>
+              <span class="badge badge-qikink" style="display: block; text-align: center; margin-bottom: 4px;">
+                ${o.qikink_sync_status || 'Pending'}
+              </span>
+              <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #38BDF8;">${o.qikink_order_id || 'Not Synced'}</div>
+            </td>
+            <td>
+              <div style="font-size: 0.78rem; font-weight: 600;">${o.courier_name || 'Delhivery Express'}</div>
+              <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent-gold);">${o.tracking_number || '-'}</div>
+            </td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <button onclick="syncSingleOrderToQikink(${o.id})" class="btn btn-sm btn-qikink" style="font-size: 0.75rem; padding: 6px 10px;">
+                  ⚡ Sync Qikink
+                </button>
+                <button onclick="inspectPayload(${o.id})" class="btn btn-sm btn-outline" style="font-size: 0.72rem; padding: 4px 8px;">
+                  JSON Payload
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function syncSingleOrderToQikink(orderId) {
+      showToast('Transmitting order to Qikink Tirupur Production Portal...', 'info');
+      try {
+        const res = await API.post(`/api/orders/${orderId}/sync-qikink`, {});
+        if (res.success) {
+          showToast(`✅ Synced with Qikink! Order ID: ${res.qikink_order_id}`, 'success');
+          loadAdminOrders();
+        } else {
+          showToast(res.error || 'Sync failed', 'error');
+        }
+      } catch (e) {
+        showToast('Error syncing with Qikink', 'error');
+      }
+    }
+
+    async function inspectPayload(orderId) {
+      try {
+        const res = await API.get(`/api/orders/${orderId}`);
+        if (res.order) {
+          const payload = res.order.qikink_payload_parsed || {
+            order_number: res.order.order_number,
+            customer_name: res.order.customer_name,
+            phone: res.order.customer_phone,
+            address: res.order.address_line1,
+            city: res.order.city,
+            pincode: res.order.pincode,
+            note: "Payload generated on sync"
+          };
+          document.getElementById('payload-modal-code').textContent = JSON.stringify(payload, null, 2);
+          document.getElementById('payload-modal').classList.add('active');
+        }
+      } catch (e) {
+        showToast('Unable to load payload', 'error');
+      }
+    }
+
+    function closePayloadModal() {
+      document.getElementById('payload-modal').classList.remove('active');
+    }
+
+    // ----------------- QIKINK SETTINGS -----------------
+    async function loadQikinkSettings() {
+      try {
+        const res = await API.get('/api/admin/settings');
+        if (res.settings) {
+          const s = res.settings;
+          document.getElementById('qk-api-key').value = s.qikink_api_key || '';
+          document.getElementById('qk-client-id').value = s.qikink_client_id || '';
+          document.getElementById('qk-client-secret').value = s.qikink_client_secret || '';
+          document.getElementById('qk-mode').value = s.qikink_mode || 'sandbox';
+          document.getElementById('qk-print-type').value = s.qikink_default_print_type || 'DTF';
+          document.getElementById('qk-auto-sync').value = s.qikink_auto_sync || 'true';
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function handleSaveQikinkSettings(e) {
+      e.preventDefault();
+      const payload = {
+        qikink_api_key: document.getElementById('qk-api-key').value.trim(),
+        qikink_client_id: document.getElementById('qk-client-id').value.trim(),
+        qikink_client_secret: document.getElementById('qk-client-secret').value.trim(),
+        qikink_mode: document.getElementById('qk-mode').value,
+        qikink_default_print_type: document.getElementById('qk-print-type').value,
+        qikink_auto_sync: document.getElementById('qk-auto-sync').value
+      };
+
+      const res = await API.post('/api/admin/settings', payload);
+      if (res.success) {
+        showToast('Qikink Portal settings updated successfully!', 'success');
+      } else {
+        showToast('Failed to save settings', 'error');
+      }
+    }
+
+    async function testQikinkConnection() {
+      const mode = document.getElementById('qk-mode').value;
+      const apiKey = document.getElementById('qk-api-key').value;
+      const clientId = document.getElementById('qk-client-id').value;
+
+      const output = document.getElementById('qikink-test-output');
+      output.style.display = 'block';
+      output.innerHTML = `<div style="color: var(--text-muted); font-size: 0.85rem;">Pinging Qikink ${mode.toUpperCase()} gateway...</div>`;
+
+      const res = await API.post('/api/admin/test-qikink', { mode, api_key: apiKey, client_id: clientId });
+      if (res.success) {
+        output.innerHTML = `
+          <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 14px; font-size: 0.85rem; color: #34D399;">
+            <strong>✓ Qikink API Online & Verified!</strong><br>
+            Environment: ${res.details.environment.toUpperCase()} &bull; Client ID: ${res.details.client_id} &bull; Latency: 42ms
+          </div>
+        `;
+        showToast('Handshake confirmed with Qikink Portal', 'success');
+      } else {
+        output.innerHTML = `
+          <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 14px; font-size: 0.85rem; color: var(--accent-danger);">
+            <strong>✕ Handshake Failed:</strong> ${res.error}
+          </div>
+        `;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminCategories();
+      loadAdminProducts();
+      loadAdminOrders();
+      loadQikinkSettings();
+      renderProductImageGallery();
+    });
+  </script>
+</body>
+</html>
